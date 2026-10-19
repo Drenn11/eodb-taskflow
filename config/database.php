@@ -15,11 +15,11 @@
 declare(strict_types=1);
 
 // Default XAMPP credentials. Change these if your MySQL root account has a password.
-define('DB_HOST', '127.0.0.1');
+define('DB_HOST', 'sql12.freesqldatabase.com');
 define('DB_PORT', 3307);
-define('DB_NAME', 'eodb_taskflow');
-define('DB_USER', 'root');
-define('DB_PASS', '');
+define('DB_NAME', 'sql12839099');
+define('DB_USER', 'sql12839099');
+define('DB_PASS', 'dMV7WpdFAX');
 define('DB_CHARSET', 'utf8mb4');
 
 /**
