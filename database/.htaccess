@@ -1,0 +1,6 @@
+# Block downloading of the SQL dump. setup.php stays reachable from localhost only
+# (it checks the client address itself).
+<FilesMatch "\.(sql|md|log)$">
+    Require all denied
+</FilesMatch>
+Options -Indexes

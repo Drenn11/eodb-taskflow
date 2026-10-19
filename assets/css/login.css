@@ -1,0 +1,586 @@
+/* =============================================================================
+   EODB-TaskFlow - Login page stylesheet
+   The original login design (as it was before the October 2026 redesign),
+   restored from backups/2026-10-15_before_enterprise_redesign. Loaded only by
+   login.php, so dashboard styles and the dashboard Dark Mode never affect it.
+   Rules are copied unchanged from the original style.css.
+   ============================================================================= */
+
+
+/* Design tokens (original values) */
+:root {
+    /* Neutrals */
+    --tf-canvas: #f3f4f6;          /* page background */
+    --tf-surface: #ffffff;         /* cards, panels, top bar */
+    --tf-surface-muted: #f8f9fb;   /* table headers, subtle panels */
+    --tf-surface-hover: #f5f7fa;
+    --tf-border: #e3e6ea;
+    --tf-border-strong: #d1d6dc;
+    --tf-text: #1f2937;
+    --tf-text-muted: #6b7280;
+    --tf-text-subtle: #9ca3af;
+    --tf-white: #ffffff;
+
+    /* Navigation (sidebar) */
+    --tf-nav-bg: #16191d;
+    --tf-nav-bg-hover: #22262c;
+    --tf-nav-active-bg: rgba(255, 255, 255, 0.07);
+    --tf-nav-text: #aab1bb;
+    --tf-nav-text-strong: #ffffff;
+    --tf-nav-muted: #6f7782;
+    --tf-nav-border: rgba(255, 255, 255, 0.07);
+    --tf-nav-accent: #60a5fa;      /* icons on dark background */
+    --tf-nav-active: #2563eb;      /* active menu item accent line */
+    --tf-nav-active-bg-blue: rgba(37, 99, 235, 0.16);
+    --tf-nav-section: #94a3b8;     /* menu group headings */
+
+    /* Inputs on the login page */
+    --tf-input-border: #e2e8f0;
+    --tf-input-focus: #2563eb;
+    --tf-input-ring: 0 0 0 4px rgba(37, 99, 235, 0.14);
+
+    /* Accent (important actions, links, focus) */
+    --tf-accent: #1d4ed8;
+    --tf-accent-hover: #1e40af;
+    --tf-accent-soft: #eef3fe;
+    --tf-accent-rgb: 29, 78, 216;
+
+    /* Task status colours (used everywhere: badges, bars, charts, cards) */
+    --tf-pending: #6b7280;
+    --tf-pending-soft: #f1f2f4;
+    --tf-pending-text: #4b5563;
+    --tf-progress: #2563eb;
+    --tf-progress-soft: #e8effd;
+    --tf-progress-text: #1d4ed8;
+    --tf-completed: #15803d;
+    --tf-completed-soft: #e7f4ec;
+    --tf-completed-text: #166534;
+    --tf-overdue: #b91c1c;
+    --tf-overdue-soft: #fdecec;
+    --tf-overdue-text: #991b1b;
+
+    /* Priority colours (text + flag, never filled like status) */
+    --tf-priority-low: #6b7280;
+    --tf-priority-medium: #475569;
+    --tf-priority-high: #b45309;
+    --tf-priority-urgent: #b91c1c;
+
+    /* Typography */
+    --tf-font: "Segoe UI", system-ui, -apple-system, Roboto, "Helvetica Neue", Arial, sans-serif;
+    --tf-font-mono: "Cascadia Mono", Consolas, "SFMono-Regular", Menlo, monospace;
+    --tf-fs-xs: 0.72rem;
+    --tf-fs-sm: 0.8125rem;
+    --tf-fs-base: 0.9375rem;
+    --tf-fs-lg: 1.0625rem;
+    --tf-fs-title: 1.375rem;
+    --tf-fs-stat: 1.6rem;
+
+    /* Spacing scale */
+    --tf-space-1: 4px;
+    --tf-space-2: 8px;
+    --tf-space-3: 12px;
+    --tf-space-4: 16px;
+    --tf-space-5: 20px;
+    --tf-space-6: 24px;
+
+    /* Shape and depth */
+    --tf-radius: 12px;             /* cards, panels, stat cards */
+    --tf-radius-sm: 8px;           /* buttons, inputs, menu items */
+    --tf-radius-pill: 999px;
+    --tf-shadow-sm: 0 1px 2px rgba(16, 24, 40, 0.05);
+    --tf-shadow-md: 0 4px 12px rgba(16, 24, 40, 0.08);
+    --tf-focus-ring: 0 0 0 3px rgba(var(--tf-accent-rgb), 0.18);
+
+    /* Layout sizes */
+    --tf-sidebar-width: 252px;
+    --tf-sidebar-collapsed: 72px;
+    --tf-topbar-height: 60px;
+
+    /* Bootstrap variables mapped to the tokens */
+    --bs-body-font-family: var(--tf-font);
+    --bs-body-font-size: var(--tf-fs-base);
+    --bs-body-color: var(--tf-text);
+    --bs-body-bg: var(--tf-surface);   /* Bootstrap uses this for cards and inputs; the page canvas is set on <body> */
+    --bs-border-color: var(--tf-border);
+    --bs-border-radius: var(--tf-radius-sm);
+    --bs-primary: var(--tf-accent);
+    --bs-primary-rgb: var(--tf-accent-rgb);
+    --bs-link-color: var(--tf-accent);
+    --bs-link-color-rgb: var(--tf-accent-rgb);
+    --bs-link-hover-color: var(--tf-accent-hover);
+    --bs-link-hover-color-rgb: 30, 64, 175;
+    --bs-secondary-color: var(--tf-text-muted);
+}
+
+/* Bootstrap adjustments used on this page */
+
+.btn {
+    --bs-btn-font-weight: 500;
+    --bs-btn-font-size: 0.875rem;
+    --bs-btn-padding-y: 0.45rem;
+    --bs-btn-padding-x: 0.95rem;
+    --bs-btn-border-radius: var(--tf-radius-sm);
+    --bs-btn-focus-box-shadow: var(--tf-focus-ring);
+}
+
+a {
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+/* Form controls */
+.form-control,
+.form-select {
+    border-color: var(--tf-border-strong);
+    border-radius: var(--tf-radius-sm);
+    font-size: 0.9rem;
+}
+
+.form-control:focus,
+.form-select:focus,
+.form-check-input:focus {
+    border-color: var(--tf-accent);
+    box-shadow: var(--tf-focus-ring);
+}
+
+.form-check-input:checked {
+    background-color: var(--tf-accent);
+    border-color: var(--tf-accent);
+}
+
+.form-label {
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: #374151;
+    margin-bottom: 0.3rem;
+}
+
+.form-text {
+    font-size: 0.78rem;
+    color: var(--tf-text-muted);
+}
+
+.invalid-feedback {
+    font-size: 0.8rem;
+}
+
+/* Base elements */
+
+body {
+    font-family: var(--tf-font);
+    font-size: var(--tf-fs-base);
+    background: var(--tf-canvas);
+    color: var(--tf-text);
+    -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    color: var(--tf-text);
+    font-weight: 600;
+}
+
+/* The HTML "hidden" attribute must always win over Bootstrap display
+   utilities such as .d-block (otherwise error messages show too early). */
+[hidden] {
+    display: none !important;
+}
+
+.text-muted {
+    color: var(--tf-text-muted) !important;
+}
+
+.text-danger {
+    color: var(--tf-overdue) !important;
+}
+
+/* Login page */
+.login-page {
+    min-height: 100vh;
+    background: var(--tf-canvas);
+}
+
+.login-wrapper {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: var(--tf-space-6) var(--tf-space-4);
+}
+
+.login-card {
+    display: flex;
+    width: 100%;
+    max-width: 920px;
+    background: var(--tf-surface);
+    border: 1px solid var(--tf-border);
+    border-radius: 12px;
+    box-shadow: var(--tf-shadow-md);
+    overflow: hidden;
+}
+
+.login-brand {
+    position: relative;
+    flex: 0 0 44%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 52px 40px 44px;
+    text-align: center;
+    background:
+        radial-gradient(circle at 50% 22%, rgba(37, 99, 235, 0.18), transparent 55%),
+        var(--tf-nav-bg);
+    color: #d6dae0;
+}
+
+/* Thin accent line at the top of the brand panel */
+.login-brand::before {
+    content: "";
+    position: absolute;
+    inset: 0 0 auto 0;
+    height: 4px;
+    background: var(--tf-accent);
+}
+
+/* Official seal: white disc, thin light ring, soft blue glow */
+.login-logo-wrap {
+    position: relative;
+    display: inline-flex;
+    margin-bottom: 26px;
+    padding: 6px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.06);
+    box-shadow:
+        0 0 0 1px rgba(255, 255, 255, 0.14),
+        0 0 32px rgba(59, 130, 246, 0.35),
+        0 12px 28px rgba(0, 0, 0, 0.45);
+}
+
+.login-logo {
+    display: block;
+    width: 112px;
+    height: 112px;
+    aspect-ratio: 1 / 1;
+    object-fit: contain;
+    border-radius: 50%;
+    background: var(--tf-white);
+}
+
+.login-office {
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+    color: var(--tf-nav-section);
+    margin-bottom: 8px;
+}
+
+.login-title {
+    font-size: 2.15rem;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    line-height: 1.1;
+    color: var(--tf-white);
+    margin-bottom: 0;
+}
+
+/* Short accent bar between the title and the tagline */
+.login-title::after {
+    content: "";
+    display: block;
+    width: 44px;
+    height: 3px;
+    margin: 14px auto 14px;
+    border-radius: 3px;
+    background: var(--tf-nav-active);
+}
+
+.login-subtitle {
+    max-width: 300px;
+    font-size: 0.92rem;
+    line-height: 1.55;
+    color: #cbd5e1;
+    margin: 0 auto 28px;
+}
+
+.login-points {
+    width: 100%;
+    max-width: 320px;
+    margin: 0 auto;
+    text-align: left;
+}
+
+.login-points li {
+    display: flex;
+    align-items: center;
+    gap: var(--tf-space-3);
+    padding: 11px 0;
+    font-size: 0.875rem;
+    color: #cbd5e1;
+    border-top: 1px solid var(--tf-nav-border);
+}
+
+.login-points i {
+    width: 30px;
+    height: 30px;
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    background: rgba(96, 165, 250, 0.12);
+    color: var(--tf-nav-accent);
+    font-size: 0.8rem;
+}
+
+.login-form-panel {
+    flex: 1;
+    padding: 56px 52px;
+}
+
+.login-form-panel h2 {
+    font-weight: 800;
+    letter-spacing: -0.01em;
+    color: #0f172a;
+}
+
+.login-form-panel .form-label {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #334155;
+}
+
+/* Inputs with the icon inside the field */
+.input-icon {
+    position: relative;
+}
+
+.input-icon-lead {
+    position: absolute;
+    top: 50%;
+    left: 15px;
+    transform: translateY(-50%);
+    color: #94a3b8;
+    font-size: 0.9rem;
+    pointer-events: none;
+    transition: color 0.15s ease;
+}
+
+.input-icon .form-control {
+    height: 48px;
+    padding: 0 16px 0 44px;
+    border: 1px solid var(--tf-input-border);
+    border-radius: 10px;
+    background: #f8fafc;
+    font-size: 0.95rem;
+    color: #0f172a;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
+}
+
+.input-icon .form-control::placeholder {
+    color: #a0aec0;
+}
+
+.input-icon .form-control:hover {
+    border-color: #cbd5e1;
+}
+
+.input-icon .form-control:focus {
+    border-color: var(--tf-input-focus);
+    background: var(--tf-white);
+    box-shadow: var(--tf-input-ring);
+}
+
+.input-icon:focus-within .input-icon-lead {
+    color: var(--tf-input-focus);
+}
+
+/* Room for the show/hide button on the right */
+.input-icon.has-action .form-control {
+    padding-right: 52px;
+}
+
+.input-icon-action {
+    position: absolute;
+    top: 50%;
+    right: 6px;
+    transform: translateY(-50%);
+    width: 38px;
+    height: 36px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 0;
+    border-radius: 8px;
+    background: transparent;
+    color: #64748b;
+    transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.input-icon-action:hover {
+    background: #eef2f7;
+    color: #0f172a;
+}
+
+.input-icon-action:focus-visible {
+    outline: none;
+    box-shadow: var(--tf-input-ring);
+}
+
+/* Invalid state: red border/ring, no Bootstrap background icon (the eye button sits there) */
+.input-icon .form-control.is-invalid {
+    border-color: var(--tf-overdue);
+    background-image: none;
+}
+
+.input-icon .form-control.is-invalid:focus {
+    box-shadow: 0 0 0 4px rgba(185, 28, 28, 0.12);
+}
+
+.login-form-panel .form-check-input {
+    border-color: #cbd5e1;
+}
+
+/* Primary button: gradient, smooth hover, pressed state */
+.btn-login {
+    height: 48px;
+    border: 0;
+    border-radius: 10px;
+    background: linear-gradient(180deg, #2f6df0 0%, #1d4ed8 100%);
+    color: var(--tf-white);
+    font-weight: 700;
+    letter-spacing: 0.01em;
+    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.15), 0 4px 12px rgba(37, 99, 235, 0.25);
+    transition: transform 0.12s ease, box-shadow 0.18s ease, filter 0.18s ease;
+}
+
+.btn-login:hover,
+.btn-login:focus-visible {
+    color: var(--tf-white);
+    background: linear-gradient(180deg, #2563eb 0%, #1e40af 100%);
+    box-shadow: 0 2px 4px rgba(15, 23, 42, 0.15), 0 8px 20px rgba(37, 99, 235, 0.32);
+}
+
+.btn-login:focus-visible {
+    outline: none;
+    box-shadow: var(--tf-input-ring), 0 8px 20px rgba(37, 99, 235, 0.32);
+}
+
+.btn-login:active {
+    transform: translateY(1px);
+    filter: brightness(0.95);
+    box-shadow: inset 0 2px 4px rgba(15, 23, 42, 0.25);
+}
+
+.btn-login:disabled {
+    color: var(--tf-white);
+    opacity: 0.75;
+}
+
+/* Pill-shaped status messages (logged out, session expired, errors) */
+.alert-pill {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: var(--tf-space-5);
+    padding: 10px 16px 10px 12px;
+    border: 1px solid transparent;
+    border-radius: 999px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    line-height: 1.35;
+}
+
+.alert-pill-icon {
+    flex-shrink: 0;
+    width: 26px;
+    height: 26px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    font-size: 0.8rem;
+}
+
+.alert-pill-success { background: #ecfdf3; border-color: #bbf7d0; color: #166534; }
+.alert-pill-success .alert-pill-icon { background: #dcfce7; color: #15803d; }
+.alert-pill-warning { background: #fffbeb; border-color: #fde68a; color: #92400e; }
+.alert-pill-warning .alert-pill-icon { background: #fef3c7; color: #b45309; }
+.alert-pill-danger  { background: #fff1f2; border-color: #fecdd3; color: #9f1239; }
+.alert-pill-danger .alert-pill-icon  { background: #ffe4e6; color: #e11d48; }
+.alert-pill-info    { background: #eff6ff; border-color: #bfdbfe; color: #1e40af; }
+.alert-pill-info .alert-pill-icon    { background: #dbeafe; color: #2563eb; }
+
+/* Long messages wrap: keep the rounded look without a full pill */
+@media (max-width: 575.98px) {
+    .alert-pill {
+        border-radius: 14px;
+    }
+}
+
+.login-help {
+    margin-top: var(--tf-space-5);
+    padding-top: var(--tf-space-4);
+    border-top: 1px solid var(--tf-border);
+    font-size: var(--tf-fs-sm);
+    color: var(--tf-text-muted);
+    text-align: center;
+}
+
+.login-footer {
+    margin-top: var(--tf-space-5);
+    font-size: var(--tf-fs-xs);
+}
+
+/* Login page on tablets and phones: stack the panels */
+@media (max-width: 767.98px) {
+    .login-card {
+        flex-direction: column;
+        max-width: 460px;
+    }
+
+    .login-brand {
+        padding: 30px 24px 26px;
+    }
+
+    .login-logo-wrap {
+        margin-bottom: var(--tf-space-4);
+        padding: 5px;
+    }
+
+    .login-logo {
+        width: 84px;
+        height: 84px;
+    }
+
+    .login-title {
+        font-size: 1.6rem;
+    }
+
+    .login-title::after {
+        margin: 10px auto;
+    }
+
+    .login-subtitle {
+        margin-bottom: 0;
+    }
+
+    .login-form-panel {
+        padding: 30px 24px;
+    }
+}
+
+/* Respect users who prefer less motion */
+@media (prefers-reduced-motion: reduce) {
+    .btn-login,
+    .input-icon .form-control {
+        transition: none;
+    }
+
+    .btn-login:active {
+        transform: none;
+    }
+}

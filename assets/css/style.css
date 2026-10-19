@@ -1,0 +1,2199 @@
+/* =============================================================================
+   EODB-TaskFlow - Main stylesheet
+   Design system: "Refined Government Enterprise"
+   Calm light-gray canvas, white content surfaces, dark-charcoal navigation,
+   one restrained government blue, semantic status colours, WCAG 2.2 AA
+   contrast for text, visible keyboard focus, no decorative gradients.
+
+   Contents
+     1. Design tokens
+     2. Bootstrap integration (buttons, links, forms, pagination, dropdowns, alerts)
+     3. Base elements, focus, utilities
+     4. Application shell (sidebar, top bar, content, footer)
+     5. Notifications
+     6. Page header, cards, panels
+     7. Dashboard stat cards and metric lists
+     8. Badges (status, priority, role, account)
+     9. Progress bars and status rows
+    10. Tables, filters, pagination, empty states, loading
+    11. Forms, detail lists, timeline
+    12. Message pages (login page: login.css)
+    13. Reports, charts, permissions, profile
+    14. Responsive rules
+    15. Touch devices, reduced motion, print
+   ============================================================================= */
+
+/* -----------------------------------------------------------------------------
+   1. Design tokens
+   All colours used below come from this block. Text colours meet WCAG AA
+   (4.5:1) on the surfaces they are used on; UI boundaries meet 3:1.
+   ----------------------------------------------------------------------------- */
+:root {
+    /* Surfaces */
+    --tf-canvas: #f5f7fa;          /* application background */
+    --tf-surface: #ffffff;         /* primary content surface */
+    --tf-surface-muted: #f8fafc;   /* table headers, subtle panels */
+    --tf-surface-hover: #f2f5f9;   /* hovered rows and controls */
+    --tf-surface-sunken: #eef1f5;  /* icon circles, tracks */
+    --tf-border: #e2e7ee;          /* dividers between surfaces (decorative) */
+    --tf-border-strong: #cfd6df;   /* hovered dividers */
+    --tf-control-border: #8a94a6;  /* form control edges: 3:1 on white */
+    --tf-white: #ffffff;
+
+    /* Text */
+    --tf-text: #202938;            /* 13.6:1 on canvas */
+    --tf-text-secondary: #647083;  /* 4.7:1 on canvas, 5.1:1 on white */
+    --tf-text-muted: #647083;      /* alias kept for existing rules */
+    --tf-text-subtle: #6b778a;     /* white surfaces only: 4.5:1 */
+    --tf-text-on-tint: #4f5b6d;    /* secondary text on tinted rows (unread): 6.1:1 */
+
+    /* Primary (government blue) */
+    --tf-accent: #315e8a;          /* 6.8:1 on white */
+    --tf-accent-hover: #264c73;
+    --tf-accent-soft: #eaf1f8;
+    --tf-accent-rgb: 49, 94, 138;
+
+    /* Navigation */
+    --tf-nav-bg: #202833;
+    --tf-nav-bg-hover: #293442;
+    --tf-nav-active-bg: #293442;
+    --tf-nav-text: #c5cdd8;        /* 9.3:1 */
+    --tf-nav-text-strong: #ffffff;
+    --tf-nav-section: #8d99ab;     /* 5.2:1 */
+    --tf-nav-border: rgba(255, 255, 255, 0.08);
+    --tf-nav-accent: #6fa3d8;      /* active line and focus on dark: 5.6:1 */
+
+    /* Task status (badges, bars, charts, stat cards) */
+    --tf-pending: #5f6878;
+    --tf-pending-soft: #f0f2f5;
+    --tf-pending-text: #5f6878;    /* 5.0:1 on its background */
+    --tf-progress: #2f65a0;
+    --tf-progress-soft: #eaf2fc;
+    --tf-progress-text: #2f65a0;   /* 5.3:1 */
+    --tf-completed: #287a55;
+    --tf-completed-soft: #e8f5ed;
+    --tf-completed-text: #287a55;  /* 4.7:1 */
+    --tf-overdue: #b93838;
+    --tf-overdue-soft: #fcecec;
+    --tf-overdue-text: #b93838;    /* 5.0:1 */
+    --tf-warning: #946010;         /* due soon / high priority: 5.3:1 */
+    --tf-warning-soft: #fbf3e4;
+    --tf-bar-pending: #6b778a;     /* bar fills keep 3:1 against the track */
+
+    /* Priority */
+    --tf-priority-low: #5f6878;
+    --tf-priority-medium: #3e5068;
+    --tf-priority-high: #946010;
+    --tf-priority-urgent: #b93838;
+
+    /* Typography (system fonts: no download, works offline) */
+    --tf-font: "Segoe UI", -apple-system, BlinkMacSystemFont, Roboto, "Helvetica Neue", Arial, sans-serif;
+    --tf-font-mono: "Cascadia Mono", Consolas, "SFMono-Regular", Menlo, monospace;
+    --tf-fs-xs: 0.75rem;           /* 12px supporting labels */
+    --tf-fs-sm: 0.8125rem;         /* 13px card titles, table meta */
+    --tf-fs-base: 0.875rem;        /* 14px body and tables */
+    --tf-fs-section: 1.0625rem;    /* 17px section headings */
+    --tf-fs-title: 1.625rem;       /* 26px page titles */
+    --tf-fs-stat: 1.625rem;        /* 26px dashboard numbers */
+
+    /* Spacing (4/8px scale) */
+    --tf-space-1: 4px;
+    --tf-space-2: 8px;
+    --tf-space-3: 12px;
+    --tf-space-4: 16px;
+    --tf-space-5: 20px;
+    --tf-space-6: 24px;
+    --tf-space-8: 32px;
+
+    /* Shape and depth */
+    --tf-radius-xs: 6px;           /* badges */
+    --tf-radius-sm: 8px;           /* buttons, inputs, menu items */
+    --tf-radius: 12px;             /* cards and panels */
+    --tf-radius-pill: 999px;
+    --tf-shadow-sm: 0 1px 3px rgba(32, 40, 51, 0.05);
+    --tf-shadow-md: 0 4px 12px rgba(32, 40, 51, 0.06);
+    --tf-focus-outline: 2px solid var(--tf-accent);
+    --tf-transition: 150ms ease;
+
+    /* Layout */
+    --tf-sidebar-width: 252px;
+    --tf-sidebar-collapsed: 76px;
+    --tf-topbar-height: 68px;
+
+    /* Bootstrap variables mapped to the tokens */
+    --bs-body-font-family: var(--tf-font);
+    --bs-body-font-size: var(--tf-fs-base);
+    --bs-body-line-height: 1.55;
+    --bs-body-color: var(--tf-text);
+    --bs-body-bg: var(--tf-surface);   /* used by Bootstrap for cards/inputs; page canvas set on <body> */
+    --bs-border-color: var(--tf-border);
+    --bs-border-radius: var(--tf-radius-sm);
+    --bs-primary: var(--tf-accent);
+    --bs-primary-rgb: var(--tf-accent-rgb);
+    --bs-link-color: var(--tf-accent);
+    --bs-link-color-rgb: var(--tf-accent-rgb);
+    --bs-link-hover-color: var(--tf-accent-hover);
+    --bs-link-hover-color-rgb: 38, 76, 115;
+    --bs-secondary-color: var(--tf-text-secondary);
+    --bs-emphasis-color: var(--tf-text);
+}
+
+/* -----------------------------------------------------------------------------
+   2. Bootstrap integration
+   Variables are adjusted per component; Bootstrap behaviour is untouched.
+   ----------------------------------------------------------------------------- */
+.btn {
+    --bs-btn-font-weight: 600;
+    --bs-btn-font-size: var(--tf-fs-base);
+    --bs-btn-line-height: 1.4;
+    --bs-btn-padding-y: 0.5rem;
+    --bs-btn-padding-x: 1rem;
+    --bs-btn-border-radius: var(--tf-radius-sm);
+    --bs-btn-focus-box-shadow: none;
+    transition: background-color var(--tf-transition), border-color var(--tf-transition), color var(--tf-transition);
+}
+
+.btn-sm {
+    --bs-btn-font-size: var(--tf-fs-sm);
+    --bs-btn-padding-y: 0.3rem;
+    --bs-btn-padding-x: 0.65rem;
+}
+
+.btn-primary {
+    --bs-btn-bg: var(--tf-accent);
+    --bs-btn-border-color: var(--tf-accent);
+    --bs-btn-hover-bg: var(--tf-accent-hover);
+    --bs-btn-hover-border-color: var(--tf-accent-hover);
+    --bs-btn-active-bg: var(--tf-accent-hover);
+    --bs-btn-active-border-color: var(--tf-accent-hover);
+    --bs-btn-disabled-bg: var(--tf-accent);
+    --bs-btn-disabled-border-color: var(--tf-accent);
+}
+
+.btn-outline-secondary {
+    --bs-btn-color: var(--tf-text);
+    --bs-btn-bg: var(--tf-surface);
+    --bs-btn-border-color: var(--tf-control-border);
+    --bs-btn-hover-color: var(--tf-text);
+    --bs-btn-hover-bg: var(--tf-surface-hover);
+    --bs-btn-hover-border-color: var(--tf-text-secondary);
+    --bs-btn-active-color: var(--tf-text);
+    --bs-btn-active-bg: var(--tf-surface-sunken);
+    --bs-btn-active-border-color: var(--tf-text-secondary);
+    --bs-btn-disabled-color: var(--tf-text-secondary);
+}
+
+.btn-outline-danger {
+    --bs-btn-color: var(--tf-overdue);
+    --bs-btn-border-color: var(--tf-overdue);
+    --bs-btn-hover-bg: var(--tf-overdue);
+    --bs-btn-hover-border-color: var(--tf-overdue);
+    --bs-btn-active-bg: var(--tf-overdue);
+    --bs-btn-active-border-color: var(--tf-overdue);
+}
+
+.btn-outline-success {
+    --bs-btn-color: var(--tf-completed);
+    --bs-btn-border-color: var(--tf-completed);
+    --bs-btn-hover-bg: var(--tf-completed);
+    --bs-btn-hover-border-color: var(--tf-completed);
+    --bs-btn-active-bg: var(--tf-completed);
+    --bs-btn-active-border-color: var(--tf-completed);
+}
+
+.btn-link {
+    --bs-btn-color: var(--tf-accent);
+    --bs-btn-hover-color: var(--tf-accent-hover);
+    --bs-btn-font-weight: 600;
+}
+
+/* Selected state of radio-style button groups (Update Task status) */
+.btn-check:checked + .btn-outline-secondary {
+    background: var(--tf-accent);
+    border-color: var(--tf-accent);
+    color: var(--tf-white);
+}
+
+/* Links: primary colour; underline on hover */
+a {
+    color: var(--tf-accent);
+    text-decoration: none;
+}
+
+a:hover {
+    color: var(--tf-accent-hover);
+    text-decoration: underline;
+}
+
+.btn:hover,
+.dropdown-item:hover,
+.sidebar-link:hover,
+.sidebar-brand-link:hover,
+.stat-card-link:hover,
+.report-card:hover,
+.notification-menu-footer:hover,
+.page-link:hover {
+    text-decoration: none;
+}
+
+/* Form controls: consistent height, 3:1 edge, clear focus */
+.form-control,
+.form-select {
+    min-height: 40px;
+    border-color: var(--tf-control-border);
+    border-radius: var(--tf-radius-sm);
+    font-size: var(--tf-fs-base);
+    color: var(--tf-text);
+    transition: border-color var(--tf-transition), box-shadow var(--tf-transition);
+}
+
+textarea.form-control {
+    min-height: auto;
+}
+
+.form-control-sm,
+.form-select-sm {
+    min-height: 32px;
+}
+
+.form-control::placeholder {
+    color: var(--tf-text-subtle);
+}
+
+.form-control:focus,
+.form-select:focus {
+    border-color: var(--tf-accent);
+    box-shadow: 0 0 0 1px var(--tf-accent);
+    outline: none;
+}
+
+.form-check-input {
+    border-color: var(--tf-control-border);
+}
+
+.form-check-input:checked {
+    background-color: var(--tf-accent);
+    border-color: var(--tf-accent);
+}
+
+.form-check-input:focus {
+    border-color: var(--tf-accent);
+    box-shadow: none;
+    outline: var(--tf-focus-outline);
+    outline-offset: 2px;
+}
+
+.form-range::-webkit-slider-thumb {
+    background: var(--tf-accent);
+}
+
+.form-range::-moz-range-thumb {
+    background: var(--tf-accent);
+}
+
+.form-range:focus::-webkit-slider-thumb {
+    box-shadow: 0 0 0 3px var(--tf-surface), 0 0 0 5px var(--tf-accent);
+}
+
+.input-group-text {
+    background: var(--tf-surface-muted);
+    border-color: var(--tf-control-border);
+    color: var(--tf-text-secondary);
+}
+
+.form-label {
+    font-size: var(--tf-fs-sm);
+    font-weight: 600;
+    color: var(--tf-text);
+    margin-bottom: 6px;
+}
+
+.form-text {
+    font-size: var(--tf-fs-xs);
+    color: var(--tf-text-secondary);
+}
+
+.invalid-feedback {
+    font-size: var(--tf-fs-xs);
+    color: var(--tf-overdue);
+}
+
+.form-control.is-invalid,
+.form-select.is-invalid {
+    border-color: var(--tf-overdue);
+}
+
+/* Pagination */
+.pagination {
+    --bs-pagination-color: var(--tf-text);
+    --bs-pagination-border-color: var(--tf-border-strong);
+    --bs-pagination-hover-bg: var(--tf-surface-hover);
+    --bs-pagination-hover-color: var(--tf-text);
+    --bs-pagination-hover-border-color: var(--tf-border-strong);
+    --bs-pagination-active-bg: var(--tf-accent);
+    --bs-pagination-active-border-color: var(--tf-accent);
+    --bs-pagination-focus-box-shadow: none;
+    --bs-pagination-disabled-color: var(--tf-text-subtle);
+    --bs-pagination-border-radius: var(--tf-radius-sm);
+    gap: 4px;
+}
+
+.pagination .page-link {
+    min-width: 34px;
+    text-align: center;
+    border-radius: var(--tf-radius-sm) !important;
+}
+
+/* Dropdowns */
+.dropdown-menu {
+    --bs-dropdown-border-color: var(--tf-border);
+    --bs-dropdown-link-color: var(--tf-text);
+    --bs-dropdown-link-hover-bg: var(--tf-surface-hover);
+    --bs-dropdown-link-active-bg: var(--tf-accent);
+    --bs-dropdown-font-size: var(--tf-fs-base);
+    --bs-dropdown-item-padding-y: 0.5rem;
+    border-radius: var(--tf-radius);
+    box-shadow: var(--tf-shadow-md);
+}
+
+/* Alerts: light tint with a coloured left edge */
+.alert {
+    border-radius: var(--tf-radius-sm);
+    font-size: var(--tf-fs-base);
+    border-width: 0 0 0 4px;
+}
+
+.alert-success   { --bs-alert-bg: var(--tf-completed-soft); --bs-alert-color: var(--tf-completed-text); --bs-alert-border-color: var(--tf-completed); }
+.alert-danger    { --bs-alert-bg: var(--tf-overdue-soft);   --bs-alert-color: var(--tf-overdue-text);   --bs-alert-border-color: var(--tf-overdue); }
+.alert-info      { --bs-alert-bg: var(--tf-accent-soft);    --bs-alert-color: var(--tf-accent-hover);   --bs-alert-border-color: var(--tf-accent); }
+.alert-warning   { --bs-alert-bg: var(--tf-warning-soft);   --bs-alert-color: var(--tf-warning);        --bs-alert-border-color: var(--tf-warning); }
+.alert-secondary { --bs-alert-bg: var(--tf-surface-muted);  --bs-alert-color: var(--tf-text);           --bs-alert-border-color: var(--tf-border-strong); }
+
+/* -----------------------------------------------------------------------------
+   3. Base elements, focus, utilities
+   ----------------------------------------------------------------------------- */
+body {
+    font-family: var(--tf-font);
+    font-size: var(--tf-fs-base);
+    line-height: 1.55;
+    background: var(--tf-canvas);
+    color: var(--tf-text);
+    -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    color: var(--tf-text);
+    font-weight: 600;
+    line-height: 1.3;
+}
+
+/* One clearly visible keyboard focus style for all interactive elements */
+a:focus-visible,
+button:focus-visible,
+.btn:focus-visible,
+[tabindex]:focus-visible,
+summary:focus-visible,
+.page-link:focus-visible,
+.dropdown-item:focus-visible {
+    outline: var(--tf-focus-outline);
+    outline-offset: 2px;
+    box-shadow: none;
+}
+
+/* The HTML "hidden" attribute must always win over Bootstrap display
+   utilities such as .d-block (otherwise error messages show too early). */
+[hidden] {
+    display: none !important;
+}
+
+.text-muted,
+.text-body-secondary {
+    color: var(--tf-text-secondary) !important;
+}
+
+.text-danger {
+    color: var(--tf-overdue) !important;
+}
+
+.text-warning {
+    color: var(--tf-warning) !important;
+}
+
+.min-w-0 {
+    min-width: 0;
+}
+
+.text-pre-line {
+    white-space: pre-line;
+}
+
+/* Task codes and other identifiers */
+.task-code {
+    font-family: var(--tf-font-mono);
+    font-size: var(--tf-fs-sm);
+    font-weight: 600;
+    letter-spacing: 0.01em;
+    color: var(--tf-text);
+    white-space: nowrap;
+}
+
+a.task-code {
+    color: var(--tf-accent);
+}
+
+/* Column minimum widths (instead of inline styles) */
+.col-w-progress { min-width: 120px; }
+.col-w-rate     { min-width: 150px; }
+.input-w-progress { width: 120px; }
+
+.skip-link {
+    position: absolute;
+    top: var(--tf-space-2);
+    left: var(--tf-space-2);
+    z-index: 2000;
+    padding: var(--tf-space-2) var(--tf-space-3);
+    border-radius: var(--tf-radius-sm);
+    background: var(--tf-surface);
+    color: var(--tf-accent);
+    font-weight: 600;
+}
+
+/* -----------------------------------------------------------------------------
+   4. Application shell
+   ----------------------------------------------------------------------------- */
+.app-wrapper {
+    display: flex;
+    min-height: 100vh;
+}
+
+/* ---- Sidebar ---- */
+.app-sidebar {
+    position: fixed;
+    inset: 0 auto 0 0;
+    width: var(--tf-sidebar-width);
+    display: flex;
+    flex-direction: column;
+    background: var(--tf-nav-bg);
+    color: var(--tf-nav-text);
+    z-index: 1040;
+    overflow-x: hidden;
+    overflow-y: auto;
+    transition: width 180ms ease;
+}
+
+.sidebar-brand {
+    display: flex;
+    align-items: center;
+    min-height: var(--tf-topbar-height);
+    padding: 0 var(--tf-space-4);
+    border-bottom: 1px solid var(--tf-nav-border);
+}
+
+.sidebar-brand-link {
+    display: flex;
+    align-items: center;
+    gap: var(--tf-space-3);
+    min-width: 0;
+    padding: 4px;
+    border-radius: var(--tf-radius-sm);
+    color: inherit;
+}
+
+.sidebar-brand-link:hover {
+    color: inherit;
+}
+
+.sidebar-brand-link:focus-visible,
+.sidebar-link:focus-visible,
+.sidebar-user-action:focus-visible {
+    outline: 2px solid var(--tf-nav-accent);
+    outline-offset: 2px;
+}
+
+/* Municipal Health Office seal: square box, never stretched or cropped */
+.sidebar-logo {
+    flex-shrink: 0;
+    width: 38px;
+    height: 38px;
+    aspect-ratio: 1 / 1;
+    object-fit: contain;
+    border-radius: 50%;
+    background: var(--tf-white);
+}
+
+.sidebar-brand-text {
+    min-width: 0;
+}
+
+.sidebar-brand-name {
+    display: block;
+    color: var(--tf-nav-text-strong);
+    font-weight: 700;
+    font-size: 0.9375rem;
+    line-height: 1.2;
+    white-space: nowrap;
+}
+
+.sidebar-brand-office {
+    display: block;
+    margin-top: 2px;
+    font-size: var(--tf-fs-xs);
+    color: var(--tf-nav-section);
+    white-space: nowrap;
+}
+
+.sidebar-nav {
+    flex: 1;
+    padding: var(--tf-space-2) var(--tf-space-3) var(--tf-space-4);
+}
+
+/* Navigation group headings */
+.sidebar-section {
+    margin: var(--tf-space-5) 0 6px;
+    padding: 0 var(--tf-space-3);
+    font-size: 0.6875rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--tf-nav-section);
+    white-space: nowrap;
+}
+
+.sidebar-section:first-child {
+    margin-top: var(--tf-space-3);
+}
+
+.sidebar-link {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: var(--tf-space-3);
+    width: 100%;
+    min-height: 40px;
+    margin-bottom: 2px;
+    padding: 9px var(--tf-space-3);
+    border: 0;
+    border-radius: var(--tf-radius-sm);
+    background: transparent;
+    color: var(--tf-nav-text);
+    font-size: var(--tf-fs-base);
+    font-weight: 500;
+    text-align: left;
+    white-space: nowrap;
+    transition: background-color var(--tf-transition), color var(--tf-transition);
+}
+
+.sidebar-link i {
+    flex-shrink: 0;
+    width: 18px;
+    text-align: center;
+    font-size: 0.9rem;
+    color: var(--tf-nav-section);
+    transition: color var(--tf-transition);
+}
+
+.sidebar-link:hover {
+    background: var(--tf-nav-bg-hover);
+    color: var(--tf-nav-text-strong);
+}
+
+.sidebar-link:hover i {
+    color: var(--tf-nav-text);
+}
+
+/* Active page: lighter surface + narrow blue line */
+.sidebar-link.active {
+    background: var(--tf-nav-active-bg);
+    color: var(--tf-nav-text-strong);
+    font-weight: 600;
+}
+
+.sidebar-link.active i {
+    color: var(--tf-nav-accent);
+}
+
+.sidebar-link.active::before {
+    content: "";
+    position: absolute;
+    left: -12px;
+    top: 8px;
+    bottom: 8px;
+    width: 3px;
+    border-radius: 0 3px 3px 0;
+    background: var(--tf-nav-accent);
+}
+
+.sidebar-badge {
+    margin-left: auto;
+    min-width: 20px;
+    padding: 1px 6px;
+    border-radius: var(--tf-radius-pill);
+    background: var(--tf-overdue);
+    color: var(--tf-white);
+    font-size: 0.6875rem;
+    font-weight: 700;
+    line-height: 1.5;
+    text-align: center;
+}
+
+/* User block at the bottom of the sidebar */
+.sidebar-user {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: var(--tf-space-3) var(--tf-space-4);
+    border-top: 1px solid var(--tf-nav-border);
+}
+
+.sidebar-user .avatar {
+    background: var(--tf-nav-bg-hover);
+    color: var(--tf-nav-text-strong);
+}
+
+.sidebar-user-text {
+    flex: 1;
+    min-width: 0;
+    line-height: 1.3;
+}
+
+.sidebar-user-name {
+    display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: var(--tf-fs-sm);
+    font-weight: 600;
+    color: var(--tf-nav-text-strong);
+}
+
+.sidebar-user-role {
+    display: block;
+    font-size: var(--tf-fs-xs);
+    color: var(--tf-nav-section);
+}
+
+.sidebar-user-action {
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border: 0;
+    border-radius: var(--tf-radius-sm);
+    background: transparent;
+    color: var(--tf-nav-text);
+    transition: background-color var(--tf-transition), color var(--tf-transition);
+}
+
+.sidebar-user-action:hover {
+    background: var(--tf-nav-bg-hover);
+    color: var(--tf-nav-text-strong);
+}
+
+.sidebar-backdrop {
+    display: none;
+}
+
+/* ---- Main column ---- */
+.app-main {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    margin-left: var(--tf-sidebar-width);
+    transition: margin-left 180ms ease;
+}
+
+/* ---- Top bar ---- */
+.app-topbar {
+    position: sticky;
+    top: 0;
+    z-index: 1030;
+    height: var(--tf-topbar-height);
+    display: flex;
+    align-items: center;
+    gap: var(--tf-space-3);
+    padding: 0 var(--tf-space-6);
+    background: var(--tf-surface);
+    border-bottom: 1px solid var(--tf-border);
+}
+
+.topbar-toggle,
+.topbar-icon {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    padding: 0;
+    border: 0;
+    border-radius: var(--tf-radius-sm);
+    background: transparent;
+    color: var(--tf-text-secondary);
+    font-size: 1.05rem;
+    text-decoration: none;
+    transition: background-color var(--tf-transition), color var(--tf-transition);
+}
+
+.topbar-toggle:hover,
+.topbar-icon:hover {
+    background: var(--tf-surface-hover);
+    color: var(--tf-text);
+}
+
+/* Page context: section / current page */
+.topbar-title {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    gap: var(--tf-space-2);
+    white-space: nowrap;
+}
+
+.topbar-context {
+    font-size: var(--tf-fs-sm);
+    color: var(--tf-text-secondary);
+}
+
+.topbar-separator {
+    font-size: 0.65rem;
+    color: var(--tf-text-subtle);
+}
+
+.topbar-page {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-size: 0.9375rem;
+    font-weight: 600;
+    color: var(--tf-text);
+}
+
+.topbar-actions {
+    display: flex;
+    align-items: center;
+    gap: var(--tf-space-1);
+}
+
+.topbar-search {
+    width: 260px;
+}
+
+.topbar-search .input-group-text,
+.topbar-search .form-control {
+    background: var(--tf-surface-muted);
+    font-size: var(--tf-fs-sm);
+}
+
+.topbar-search .form-control:focus {
+    background: var(--tf-surface);
+}
+
+.topbar-badge {
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    min-width: 17px;
+    height: 17px;
+    padding: 0 4px;
+    border: 2px solid var(--tf-surface);
+    border-radius: var(--tf-radius-pill);
+    background: var(--tf-overdue);
+    color: var(--tf-white);
+    font-size: 0.625rem;
+    font-weight: 700;
+    line-height: 13px;
+    text-align: center;
+}
+
+.topbar-user {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-left: var(--tf-space-1);
+    padding: 4px 8px 4px 4px;
+    border: 0;
+    border-radius: var(--tf-radius-sm);
+    background: transparent;
+    color: inherit;
+    text-decoration: none;
+}
+
+.topbar-user:hover {
+    background: var(--tf-surface-hover);
+}
+
+.topbar-user-text {
+    text-align: left;
+    line-height: 1.25;
+}
+
+.topbar-user-name {
+    display: block;
+    max-width: 190px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: var(--tf-fs-sm);
+    font-weight: 600;
+    color: var(--tf-text);
+}
+
+.topbar-user-role {
+    display: block;
+    font-size: var(--tf-fs-xs);
+    color: var(--tf-text-secondary);
+}
+
+/* ---- Avatars ---- */
+.avatar {
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: var(--tf-accent-soft);
+    color: var(--tf-accent-hover);
+    font-weight: 600;
+    object-fit: cover;
+}
+
+.avatar-sm {
+    width: 34px;
+    height: 34px;
+    font-size: var(--tf-fs-xs);
+}
+
+.avatar-lg {
+    width: 84px;
+    height: 84px;
+    font-size: 1.6rem;
+}
+
+/* ---- Content and footer ---- */
+.app-content {
+    flex: 1;
+    width: 100%;
+    max-width: 1600px;
+    padding: var(--tf-space-6) var(--tf-space-8) var(--tf-space-8);
+}
+
+.app-footer {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 6px;
+    padding: var(--tf-space-3) var(--tf-space-8);
+    border-top: 1px solid var(--tf-border);
+    background: var(--tf-surface);
+    font-size: var(--tf-fs-xs);
+    color: var(--tf-text-subtle);
+}
+
+/* ---- Collapsed sidebar (desktop only) ---- */
+@media (min-width: 992px) {
+    .sidebar-collapsed .app-sidebar {
+        width: var(--tf-sidebar-collapsed);
+    }
+
+    .sidebar-collapsed .app-main {
+        margin-left: var(--tf-sidebar-collapsed);
+    }
+
+    .sidebar-collapsed .sidebar-brand {
+        justify-content: center;
+        padding: 0;
+    }
+
+    .sidebar-collapsed .sidebar-brand-text,
+    .sidebar-collapsed .sidebar-label,
+    .sidebar-collapsed .sidebar-user-text,
+    .sidebar-collapsed .sidebar-link .sidebar-badge {
+        display: none;
+    }
+
+    .sidebar-collapsed .sidebar-section {
+        height: 1px;
+        margin: var(--tf-space-3) var(--tf-space-2);
+        padding: 0;
+        overflow: hidden;
+        color: transparent;
+        background: var(--tf-nav-border);
+    }
+
+    .sidebar-collapsed .sidebar-link {
+        justify-content: center;
+        padding: 10px 0;
+    }
+
+    .sidebar-collapsed .sidebar-user {
+        flex-direction: column;
+        gap: 6px;
+        padding: var(--tf-space-3) 0;
+    }
+}
+
+/* -----------------------------------------------------------------------------
+   5. Notifications
+   ----------------------------------------------------------------------------- */
+.notification-menu {
+    width: 360px;
+    max-width: calc(100vw - 24px);
+    max-height: 480px;
+    overflow-y: auto;
+}
+
+.notification-menu-header {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--tf-space-3) var(--tf-space-4);
+    border-bottom: 1px solid var(--tf-border);
+    background: var(--tf-surface);
+}
+
+.notification-item {
+    display: flex;
+    gap: var(--tf-space-3);
+    width: 100%;
+    padding: var(--tf-space-3) var(--tf-space-4);
+    border: 0;
+    border-bottom: 1px solid var(--tf-border);
+    background: var(--tf-surface);
+    color: inherit;
+    text-align: left;
+}
+
+button.notification-item:hover {
+    background: var(--tf-surface-hover);
+}
+
+.notification-item.unread {
+    background: var(--tf-accent-soft);
+}
+
+/* Unread is shown by a dot AND the bold title, not colour alone */
+.notification-item.unread .notification-item-title::after {
+    content: "";
+    display: inline-block;
+    width: 7px;
+    height: 7px;
+    margin-left: 6px;
+    border-radius: 50%;
+    background: var(--tf-accent);
+    vertical-align: middle;
+}
+
+.notification-item-icon {
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: var(--tf-pending-soft);
+    color: var(--tf-pending);
+    font-size: 0.85rem;
+}
+
+.notification-type-task_assigned .notification-item-icon,
+.notification-type-task_updated .notification-item-icon      { background: var(--tf-progress-soft);  color: var(--tf-progress); }
+.notification-type-task_completed .notification-item-icon    { background: var(--tf-completed-soft); color: var(--tf-completed); }
+.notification-type-task_overdue .notification-item-icon      { background: var(--tf-overdue-soft);   color: var(--tf-overdue); }
+.notification-type-deadline_upcoming .notification-item-icon { background: var(--tf-warning-soft);   color: var(--tf-warning); }
+
+.notification-item-title {
+    font-size: var(--tf-fs-sm);
+    font-weight: 600;
+}
+
+.notification-item-message {
+    font-size: var(--tf-fs-sm);
+    color: var(--tf-text-secondary);
+}
+
+.notification-item-time {
+    margin-top: 2px;
+    font-size: var(--tf-fs-xs);
+    color: var(--tf-text-subtle);
+}
+
+.notification-menu-footer {
+    display: block;
+    padding: 10px;
+    font-size: var(--tf-fs-sm);
+    font-weight: 600;
+    text-align: center;
+    color: var(--tf-accent);
+}
+
+/* Notifications page */
+.notification-row {
+    padding: var(--tf-space-4) var(--tf-space-5);
+}
+
+.notification-row.unread {
+    background: var(--tf-accent-soft);
+    box-shadow: inset 3px 0 0 var(--tf-accent);
+}
+
+/* Secondary text stays readable on the tinted unread background */
+.notification-item.unread .notification-item-message,
+.notification-item.unread .notification-item-time,
+.notification-row.unread .text-muted {
+    color: var(--tf-text-on-tint) !important;
+}
+
+/* -----------------------------------------------------------------------------
+   6. Page header, cards, panels
+   ----------------------------------------------------------------------------- */
+.page-header {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: var(--tf-space-4);
+    margin-bottom: var(--tf-space-6);
+}
+
+.page-title {
+    margin: 0;
+    font-size: var(--tf-fs-title);
+    font-weight: 600;
+    letter-spacing: -0.015em;
+    line-height: 1.25;
+    overflow-wrap: anywhere;
+}
+
+.page-subtitle {
+    max-width: 75ch;
+    margin: 6px 0 0;
+    font-size: var(--tf-fs-base);
+    color: var(--tf-text-secondary);
+}
+
+.breadcrumb {
+    --bs-breadcrumb-divider-color: var(--tf-text-subtle);
+    --bs-breadcrumb-item-active-color: var(--tf-text-secondary);
+    margin-bottom: 6px;
+    font-size: var(--tf-fs-sm);
+}
+
+.section-label {
+    margin-bottom: var(--tf-space-3);
+    font-size: var(--tf-fs-sm);
+    font-weight: 600;
+    color: var(--tf-text-secondary);
+}
+
+.section-label strong {
+    color: var(--tf-text);
+}
+
+.card {
+    --bs-card-border-color: var(--tf-border);
+    --bs-card-border-radius: var(--tf-radius);
+    --bs-card-inner-border-radius: calc(var(--tf-radius) - 1px);
+    --bs-card-cap-bg: var(--tf-surface);
+    --bs-card-spacer-x: var(--tf-space-5);
+    --bs-card-spacer-y: var(--tf-space-5);
+    box-shadow: var(--tf-shadow-sm);
+}
+
+.card-header {
+    display: block;
+    padding: 14px var(--tf-space-5);
+    border-bottom-color: var(--tf-border);
+    background: var(--tf-surface);
+    font-size: 0.9375rem;
+    font-weight: 600;
+    color: var(--tf-text);
+}
+
+.card-header a.small {
+    font-weight: 600;
+}
+
+.card-footer {
+    border-top-color: var(--tf-border);
+}
+
+.list-group-item {
+    border-color: var(--tf-border);
+    color: var(--tf-text);
+}
+
+/* Small icon before card titles */
+.card-title-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    margin-right: 10px;
+    border-radius: var(--tf-radius-sm);
+    background: var(--tf-accent-soft);
+    color: var(--tf-accent);
+    font-size: 0.8rem;
+    vertical-align: middle;
+}
+
+/* -----------------------------------------------------------------------------
+   7. Dashboard stat cards and metric lists
+   ----------------------------------------------------------------------------- */
+.stat-card {
+    --stat-color: var(--tf-accent);
+    --stat-soft: var(--tf-accent-soft);
+    display: flex;
+    align-items: center;
+    gap: var(--tf-space-4);
+    height: 100%;
+    padding: var(--tf-space-5);
+    border: 1px solid var(--tf-border);
+    border-radius: var(--tf-radius);
+    background: var(--tf-surface);
+    box-shadow: var(--tf-shadow-sm);
+}
+
+.stat-card-icon {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: var(--tf-radius-sm);
+    background: var(--stat-soft);
+    color: var(--stat-color);
+    font-size: 1rem;
+}
+
+.stat-card-label {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: var(--tf-fs-sm);
+    font-weight: 600;
+    color: var(--tf-text-secondary);
+}
+
+.stat-card-value {
+    margin-top: 2px;
+    font-size: var(--tf-fs-stat);
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    line-height: 1.15;
+    color: var(--tf-text);
+    font-variant-numeric: tabular-nums;
+}
+
+.stat-card-note {
+    margin-top: 2px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: var(--tf-fs-xs);
+    color: var(--tf-text-subtle);
+}
+
+.stat-dark      { --stat-color: var(--tf-accent);    --stat-soft: var(--tf-accent-soft); }
+.stat-accent    { --stat-color: var(--tf-accent);    --stat-soft: var(--tf-accent-soft); }
+.stat-pending   { --stat-color: var(--tf-pending);   --stat-soft: var(--tf-pending-soft); }
+.stat-progress  { --stat-color: var(--tf-progress);  --stat-soft: var(--tf-progress-soft); }
+.stat-completed { --stat-color: var(--tf-completed); --stat-soft: var(--tf-completed-soft); }
+.stat-overdue   { --stat-color: var(--tf-overdue);   --stat-soft: var(--tf-overdue-soft); }
+
+.stat-overdue .stat-card-value {
+    color: var(--tf-overdue);
+}
+
+/* Only cards that link somewhere react to the pointer */
+.stat-card-link {
+    color: inherit;
+    transition: border-color var(--tf-transition), box-shadow var(--tf-transition);
+}
+
+.stat-card-link:hover {
+    color: inherit;
+    border-color: var(--tf-border-strong);
+    box-shadow: var(--tf-shadow-md);
+}
+
+/* Label / value list (e.g. Workforce panel) */
+.metric-list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.metric-list li {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: var(--tf-space-3);
+    padding: 12px var(--tf-space-5);
+    border-bottom: 1px solid var(--tf-border);
+    font-size: var(--tf-fs-base);
+}
+
+.metric-list li:last-child {
+    border-bottom: 0;
+}
+
+.metric-label {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: var(--tf-text-secondary);
+}
+
+.metric-label i {
+    width: 16px;
+    text-align: center;
+    color: var(--tf-text-subtle);
+}
+
+.metric-value {
+    font-weight: 700;
+    color: var(--tf-text);
+    font-variant-numeric: tabular-nums;
+}
+
+/* -----------------------------------------------------------------------------
+   8. Badges (text label + colour; never colour alone)
+   ----------------------------------------------------------------------------- */
+.badge {
+    padding: 0.3em 0.65em;
+    border-radius: var(--tf-radius-xs);
+    font-size: var(--tf-fs-xs);
+    font-weight: 600;
+    letter-spacing: 0.01em;
+}
+
+/* Task status: tinted label with a status dot */
+.badge-status-pending,
+.badge-status-progress,
+.badge-status-completed,
+.badge-status-overdue {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    white-space: nowrap;
+}
+
+.badge-status-pending::before,
+.badge-status-progress::before,
+.badge-status-completed::before,
+.badge-status-overdue::before {
+    content: "";
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: currentColor;
+}
+
+.badge-status-pending   { background: var(--tf-pending-soft);   color: var(--tf-pending-text); }
+.badge-status-progress  { background: var(--tf-progress-soft);  color: var(--tf-progress-text); }
+.badge-status-completed { background: var(--tf-completed-soft); color: var(--tf-completed-text); }
+.badge-status-overdue   { background: var(--tf-overdue-soft);   color: var(--tf-overdue-text); }
+
+/* Priority: outlined with a flag icon (never looks like a status) */
+.badge-priority-low,
+.badge-priority-medium,
+.badge-priority-high,
+.badge-priority-urgent {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    border: 1px solid currentColor;
+    background: var(--tf-surface);
+    white-space: nowrap;
+}
+
+.badge-priority-low i,
+.badge-priority-medium i,
+.badge-priority-high i,
+.badge-priority-urgent i {
+    font-size: 0.625rem;
+}
+
+.badge-priority-low    { color: var(--tf-priority-low); }
+.badge-priority-medium { color: var(--tf-priority-medium); }
+.badge-priority-high   { color: var(--tf-priority-high); }
+.badge-priority-urgent { color: var(--tf-priority-urgent); background: var(--tf-overdue-soft); }
+
+/* Account status */
+.badge-account-active   { background: var(--tf-completed-soft); color: var(--tf-completed-text); }
+.badge-account-inactive { background: var(--tf-pending-soft);   color: var(--tf-pending-text); }
+
+/* Role and neutral badges produced with Bootstrap colour classes */
+.badge.text-bg-dark      { background: var(--tf-nav-bg) !important;       color: var(--tf-white) !important; }
+.badge.text-bg-secondary { background: var(--tf-accent-soft) !important;  color: var(--tf-accent-hover) !important; }
+.badge.text-bg-light     { background: var(--tf-surface-muted) !important; color: var(--tf-text) !important; border-color: var(--tf-border-strong) !important; }
+
+/* -----------------------------------------------------------------------------
+   9. Progress bars and status rows
+   ----------------------------------------------------------------------------- */
+.progress {
+    --bs-progress-height: 6px;
+    --bs-progress-bg: var(--tf-surface-sunken);
+    --bs-progress-border-radius: var(--tf-radius-pill);
+}
+
+.bar-pending   { background: var(--tf-bar-pending); }
+.bar-progress  { background: var(--tf-progress); }
+.bar-completed { background: var(--tf-completed); }
+.bar-overdue   { background: var(--tf-overdue); }
+
+.progress-cell {
+    min-width: 90px;
+}
+
+.progress-cell .small {
+    font-size: var(--tf-fs-xs);
+    font-weight: 600;
+    color: var(--tf-text) !important;
+    font-variant-numeric: tabular-nums;
+}
+
+.status-row + .status-row {
+    margin-top: 14px;
+}
+
+.status-row-label {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 6px;
+    font-size: var(--tf-fs-sm);
+}
+
+/* Coloured dot before a status name (uses the bar-* classes) */
+.status-dot {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    margin-right: 8px;
+    border-radius: 50%;
+    vertical-align: middle;
+}
+
+/* Footer strip of a card (e.g. overall completion rate) */
+.completion-summary {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: var(--tf-space-3);
+    padding: 12px var(--tf-space-5);
+    border-top: 1px solid var(--tf-border);
+    border-radius: 0 0 calc(var(--tf-radius) - 1px) calc(var(--tf-radius) - 1px);
+    background: var(--tf-surface-muted);
+    font-size: var(--tf-fs-sm);
+    color: var(--tf-text-secondary);
+}
+
+.completion-summary strong {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--tf-completed-text);
+}
+
+/* -----------------------------------------------------------------------------
+   10. Tables, filters, pagination, empty states, loading
+   ----------------------------------------------------------------------------- */
+.table {
+    --bs-table-color: var(--tf-text);
+    --bs-table-hover-bg: var(--tf-surface-hover);
+    --bs-table-hover-color: var(--tf-text);
+    --bs-table-border-color: var(--tf-border);
+    margin-bottom: 0;
+    font-size: var(--tf-fs-base);
+}
+
+.table > thead th {
+    padding-top: 10px;
+    padding-bottom: 10px;
+    background: var(--tf-surface-muted);
+    font-size: var(--tf-fs-xs);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    white-space: nowrap;
+    color: var(--tf-text-secondary);
+}
+
+.table > :not(caption) > * > * {
+    padding-left: 14px;
+    padding-right: 14px;
+}
+
+.table > tbody td {
+    padding-top: 12px;
+    padding-bottom: 12px;
+    vertical-align: middle;
+}
+
+.table-actions {
+    white-space: nowrap;
+}
+
+.table-actions .btn {
+    min-width: 32px;
+    min-height: 32px;
+    padding: 4px 8px;
+}
+
+.table-actions .btn + .btn,
+.table-actions .btn + form,
+.table-actions form + .btn {
+    margin-left: 4px;
+}
+
+.card > .table-responsive:last-child .table > tbody > tr:last-child > td {
+    border-bottom: 0;
+}
+
+/* Visible scroll affordance: soft shadows appear at an edge only while more
+   columns are hidden in that direction (pure CSS, no extra markup). */
+.table-responsive {
+    background:
+        linear-gradient(to right, var(--tf-surface) 30%, rgba(255, 255, 255, 0)) left center / 40px 100% no-repeat local,
+        linear-gradient(to left, var(--tf-surface) 30%, rgba(255, 255, 255, 0)) right center / 40px 100% no-repeat local,
+        radial-gradient(farthest-side at 0 50%, rgba(32, 40, 51, 0.14), rgba(32, 40, 51, 0)) left center / 12px 100% no-repeat scroll,
+        radial-gradient(farthest-side at 100% 50%, rgba(32, 40, 51, 0.14), rgba(32, 40, 51, 0)) right center / 12px 100% no-repeat scroll;
+    background-color: var(--tf-surface);
+}
+
+/* Search and filter panel */
+.filter-bar {
+    margin-bottom: var(--tf-space-5);
+    padding: var(--tf-space-4) var(--tf-space-5);
+    border: 1px solid var(--tf-border);
+    border-radius: var(--tf-radius);
+    background: var(--tf-surface);
+    box-shadow: var(--tf-shadow-sm);
+}
+
+.filter-bar .form-label {
+    margin-bottom: 4px;
+    font-size: var(--tf-fs-xs);
+    font-weight: 600;
+    color: var(--tf-text-secondary);
+}
+
+.filter-bar .btn {
+    min-height: 40px;
+}
+
+/* Empty states: icon in a soft circle + message */
+.empty-state {
+    padding: 40px var(--tf-space-4);
+    text-align: center;
+    font-size: var(--tf-fs-base);
+    line-height: 1.5;
+    color: var(--tf-text-secondary);
+}
+
+.empty-state i {
+    display: block;
+    width: 48px;
+    height: 48px;
+    margin: 0 auto 12px;
+    border-radius: 50%;
+    background: var(--tf-surface-sunken);
+    color: var(--tf-pending);
+    font-size: 1.2rem;
+    line-height: 48px;
+    text-align: center;
+}
+
+.empty-state-title {
+    display: block;
+    margin-bottom: 2px;
+    font-weight: 600;
+    color: var(--tf-text);
+}
+
+/* Inside a full-height card the message sits in the vertical middle */
+.card.h-100 > .empty-state {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Loading: buttons of forms that are being submitted */
+.btn.is-loading {
+    pointer-events: none;
+    opacity: 0.85;
+}
+
+/* -----------------------------------------------------------------------------
+   11. Forms, detail lists, timeline
+   ----------------------------------------------------------------------------- */
+.form-section-title {
+    display: flex;
+    align-items: center;
+    gap: var(--tf-space-2);
+    margin: var(--tf-space-1) 0 var(--tf-space-4);
+    padding-bottom: var(--tf-space-2);
+    border-bottom: 1px solid var(--tf-border);
+    font-size: 0.9375rem;
+    font-weight: 600;
+    color: var(--tf-text);
+}
+
+.form-label .required {
+    color: var(--tf-overdue);
+}
+
+.form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: var(--tf-space-2);
+    margin-top: var(--tf-space-6);
+    padding-top: var(--tf-space-4);
+    border-top: 1px solid var(--tf-border);
+}
+
+/* Label / value grid on details pages */
+.detail-list {
+    display: grid;
+    grid-template-columns: fit-content(40%) minmax(0, 1fr);
+    column-gap: var(--tf-space-3);
+    row-gap: 12px;
+    margin: 0;
+    font-size: var(--tf-fs-base);
+}
+
+.detail-list dt {
+    font-weight: 500;
+    color: var(--tf-text-secondary);
+}
+
+.detail-list dd {
+    margin: 0;
+    overflow-wrap: anywhere;
+}
+
+/* Long codes may wrap inside narrow summary cards */
+.detail-list .task-code {
+    white-space: normal;
+}
+
+/* Task history timeline */
+.timeline {
+    padding: var(--tf-space-2) var(--tf-space-5);
+}
+
+.timeline-item {
+    position: relative;
+    padding: 14px 0 14px 24px;
+    border-left: 2px solid var(--tf-border);
+}
+
+.timeline-item::before {
+    content: "";
+    position: absolute;
+    left: -7px;
+    top: 18px;
+    width: 12px;
+    height: 12px;
+    border: 2px solid var(--tf-control-border);
+    border-radius: 50%;
+    background: var(--tf-surface);
+}
+
+.timeline-item:first-child::before {
+    border-color: var(--tf-accent);
+    background: var(--tf-accent);
+}
+
+/* -----------------------------------------------------------------------------
+   12. Message pages (logout confirmation, 403, 404)
+   The login page has its own stylesheet: assets/css/login.css
+   ----------------------------------------------------------------------------- */
+.login-page {
+    min-height: 100vh;
+    background: var(--tf-canvas);
+}
+
+.login-wrapper {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: var(--tf-space-6) var(--tf-space-4);
+}
+
+/* Logout / 403 / 404 cards */
+.message-card {
+    width: 100%;
+    max-width: 440px;
+    border-radius: var(--tf-radius);
+    box-shadow: var(--tf-shadow-md);
+}
+
+.message-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 52px;
+    height: 52px;
+    margin-bottom: var(--tf-space-3);
+    border-radius: 50%;
+    background: var(--tf-pending-soft);
+    color: var(--tf-pending);
+    font-size: 1.3rem;
+}
+
+.message-icon-danger {
+    background: var(--tf-overdue-soft);
+    color: var(--tf-overdue);
+}
+
+.error-code {
+    margin-bottom: var(--tf-space-2);
+    font-size: 2.5rem;
+    font-weight: 700;
+    line-height: 1;
+    color: var(--tf-text);
+}
+
+/* -----------------------------------------------------------------------------
+   13. Reports, charts, permissions, profile
+   ----------------------------------------------------------------------------- */
+.chart-box {
+    position: relative;
+    height: 260px;
+}
+
+.chart-box-sm {
+    height: 210px;
+}
+
+.chart-box-tall {
+    height: 320px;
+}
+
+.report-card {
+    color: inherit;
+    transition: border-color var(--tf-transition), box-shadow var(--tf-transition);
+}
+
+.report-card:hover {
+    color: inherit;
+    border-color: var(--tf-border-strong);
+    box-shadow: var(--tf-shadow-md);
+}
+
+.report-card .card-footer {
+    color: var(--tf-accent);
+}
+
+.report-summary {
+    font-size: var(--tf-fs-sm);
+}
+
+.report-summary dt {
+    font-weight: 500;
+    color: var(--tf-text-secondary);
+}
+
+.permission-yes { color: var(--tf-completed); }
+.permission-no  { color: var(--tf-control-border); }
+
+/* Profile header */
+.profile-cover {
+    position: relative;
+    height: 64px;
+    border-radius: calc(var(--tf-radius) - 1px) calc(var(--tf-radius) - 1px) 0 0;
+    background: var(--tf-accent-soft);
+}
+
+.profile-avatar {
+    position: relative;
+    z-index: 1;
+    margin-top: -42px;
+    border: 4px solid var(--tf-surface);
+}
+
+/* -----------------------------------------------------------------------------
+   14. Responsive rules (mobile-first adjustments)
+   ----------------------------------------------------------------------------- */
+
+/* Tablets and phones: the sidebar becomes an off-canvas panel */
+@media (max-width: 991.98px) {
+    .app-sidebar {
+        transform: translateX(-100%);
+        transition: transform 180ms ease;
+        visibility: hidden;
+    }
+
+    .app-sidebar.open {
+        transform: translateX(0);
+        visibility: visible;
+        box-shadow: 0 0 24px rgba(0, 0, 0, 0.3);
+    }
+
+    .sidebar-backdrop.show {
+        display: block;
+        position: fixed;
+        inset: 0;
+        z-index: 1035;
+        background: rgba(32, 40, 51, 0.5);
+    }
+
+    .app-main {
+        margin-left: 0;
+    }
+
+    .app-topbar {
+        padding: 0 var(--tf-space-3);
+    }
+
+    .app-content {
+        padding: var(--tf-space-5);
+    }
+
+    .app-footer {
+        padding: var(--tf-space-3) var(--tf-space-5);
+    }
+}
+
+/* Phones */
+@media (max-width: 575.98px) {
+    :root {
+        --tf-fs-title: 1.375rem;   /* 22px */
+        --tf-topbar-height: 60px;
+    }
+
+    .app-content {
+        padding: var(--tf-space-4);
+    }
+
+    .topbar-context,
+    .topbar-separator {
+        display: none;
+    }
+
+    .stat-card {
+        gap: 10px;
+        padding: var(--tf-space-3);
+    }
+
+    .stat-card-icon {
+        width: 32px;
+        height: 32px;
+        font-size: 0.85rem;
+    }
+
+    .stat-card-note {
+        display: none;
+    }
+
+    .stat-card-label {
+        font-size: var(--tf-fs-xs);
+        line-height: 1.25;
+        white-space: normal;
+    }
+
+    .stat-card-value {
+        font-size: 1.375rem;
+    }
+
+    .page-header .btn {
+        width: 100%;
+    }
+
+    .page-header > .d-flex {
+        width: 100%;
+    }
+
+    .page-header > .d-flex > .btn,
+    .page-header > .d-flex > form,
+    .page-header > .d-flex > a {
+        flex: 1 1 auto;
+    }
+
+    .card-header {
+        padding: 12px 14px;
+    }
+
+    .form-actions {
+        flex-direction: column-reverse;
+    }
+
+    .form-actions .btn {
+        width: 100%;
+    }
+}
+
+/* Phones and small tablets: rows of the main task/user lists become labelled
+   cards (same markup, CSS only). Add "table-mobile-cards" + data-label per <td>. */
+@media (max-width: 767.98px) {
+    .table-mobile-cards thead {
+        display: none;
+    }
+
+    .table-mobile-cards,
+    .table-mobile-cards tbody,
+    .table-mobile-cards tr,
+    .table-mobile-cards td {
+        display: block;
+        width: 100%;
+    }
+
+    .table-mobile-cards tr {
+        padding: 12px 16px;
+        border-bottom: 1px solid var(--tf-border);
+    }
+
+    .table-mobile-cards > tbody > tr > td {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 12px;
+        padding: 4px 0 !important;
+        border: 0;
+        text-align: right;
+    }
+
+    .table-mobile-cards > tbody > tr > td::before {
+        content: attr(data-label);
+        flex-shrink: 0;
+        max-width: 40%;
+        padding-top: 2px;
+        font-size: var(--tf-fs-xs);
+        font-weight: 600;
+        text-align: left;
+        color: var(--tf-text-secondary);
+    }
+
+    .table-mobile-cards > tbody > tr > td.cell-title {
+        display: block;
+        padding-bottom: 6px !important;
+        text-align: left;
+        font-weight: 600;
+    }
+
+    .table-mobile-cards > tbody > tr > td.cell-title::before,
+    .table-mobile-cards > tbody > tr > td.table-actions::before {
+        display: none;
+    }
+
+    .table-mobile-cards > tbody > tr > td.table-actions {
+        justify-content: flex-end;
+        padding-top: 8px !important;
+    }
+
+    .table-mobile-cards .progress-cell {
+        flex: 0 0 55%;
+    }
+
+    .table-mobile-cards .avatar {
+        display: none;
+    }
+}
+
+/* -----------------------------------------------------------------------------
+   15. Touch devices, reduced motion, print
+   ----------------------------------------------------------------------------- */
+
+/* Comfortable 44px touch targets on touch screens */
+@media (pointer: coarse) {
+    .btn,
+    .form-control,
+    .form-select,
+    .page-link,
+    .sidebar-link,
+    .topbar-toggle,
+    .topbar-icon,
+    .sidebar-user-action,
+    .dropdown-item {
+        min-height: 44px;
+    }
+
+    .table-actions .btn,
+    .topbar-toggle,
+    .topbar-icon,
+    .sidebar-user-action {
+        min-width: 44px;
+    }
+
+    .dropdown-item,
+    .page-link {
+        display: flex;
+        align-items: center;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        transition-duration: 0.01ms !important;
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+    }
+}
+
+/* Printing an ordinary page: content only, white background
+   (formal reports use reports/print_report.php with print.css) */
+@media print {
+    .app-sidebar,
+    .sidebar-backdrop,
+    .app-topbar,
+    .app-footer,
+    .skip-link,
+    .filter-bar,
+    .pagination,
+    .table-actions,
+    .page-header .btn,
+    .page-header form,
+    .btn,
+    .alert .btn-close {
+        display: none !important;
+    }
+
+    body,
+    .app-main,
+    .app-content {
+        background: #fff !important;
+    }
+
+    .app-main {
+        margin-left: 0 !important;
+    }
+
+    .app-content {
+        max-width: none;
+        padding: 0;
+    }
+
+    .card,
+    .stat-card {
+        box-shadow: none !important;
+        break-inside: avoid;
+    }
+
+    .table-responsive {
+        overflow: visible !important;
+        background: none !important;
+    }
+
+    .table thead {
+        display: table-header-group;
+    }
+
+    .table tr {
+        break-inside: avoid;
+    }
+
+    a {
+        color: inherit !important;
+        text-decoration: none !important;
+    }
+}
+
+/* -----------------------------------------------------------------------------
+   16. Light / Dark Mode
+   The theme is set on <html> by assets/js/theme-init.js (data-theme and
+   Bootstrap's data-bs-theme) and switched by the top-bar toggle (app.js).
+   Dark Mode only redefines the design tokens above, plus a few components
+   whose colours cannot follow a token. It applies on screen only: printing
+   always uses the light colours. The login page does not load this file.
+   ----------------------------------------------------------------------------- */
+
+/* Toggle button: moon in Light Mode, sun in Dark Mode */
+.theme-toggle .theme-icon-light {
+    display: none;
+}
+
+:root[data-theme="dark"] .theme-toggle .theme-icon-dark {
+    display: none;
+}
+
+:root[data-theme="dark"] .theme-toggle .theme-icon-light {
+    display: inline-block;
+}
+
+@media screen {
+    :root[data-theme="dark"] {
+        color-scheme: dark;
+
+        /* Surfaces */
+        --tf-canvas: #111827;
+        --tf-surface: #1f2937;
+        --tf-surface-muted: #273449;
+        --tf-surface-hover: #2c3b52;
+        --tf-surface-sunken: #374151;
+        --tf-border: #374151;
+        --tf-border-strong: #4b5563;
+        --tf-control-border: #6b7280;   /* 3:1 on the surface */
+
+        /* Text */
+        --tf-text: #f3f4f6;
+        --tf-text-secondary: #cbd5e1;
+        --tf-text-muted: #cbd5e1;
+        --tf-text-subtle: #9ca3af;
+        --tf-text-on-tint: #cbd5e1;
+
+        /* Accent: links, icons, focus outlines, active states */
+        --tf-accent: #60a5fa;
+        --tf-accent-hover: #93c5fd;
+        --tf-accent-soft: #1e3a5f;
+        --tf-accent-rgb: 96, 165, 250;
+        --tf-button: #2563eb;           /* filled buttons: white text 5.2:1 */
+        --tf-button-hover: #1d4ed8;
+
+        /* Navigation */
+        --tf-nav-bg: #111827;
+        --tf-nav-bg-hover: #1f2937;
+        --tf-nav-active-bg: #1f2937;
+        --tf-nav-text: #cbd5e1;
+        --tf-nav-section: #9ca3af;
+        --tf-nav-border: #374151;
+        --tf-nav-accent: #60a5fa;
+
+        /* Task status: colour on a dim tint of the same colour */
+        --tf-pending: #9ca3af;
+        --tf-pending-soft: #2e3845;
+        --tf-pending-text: #b6bcc6;
+        --tf-progress: #60a5fa;
+        --tf-progress-soft: #243650;
+        --tf-progress-text: #7cb6fb;
+        --tf-completed: #4ade80;
+        --tf-completed-soft: #1f3b35;
+        --tf-completed-text: #4ade80;
+        --tf-overdue: #f87171;
+        --tf-overdue-soft: #3b2a33;
+        --tf-overdue-text: #fa8f8f;
+        --tf-warning: #fbbf24;
+        --tf-warning-soft: #383729;
+        --tf-bar-pending: #9ca3af;
+
+        /* Priority */
+        --tf-priority-low: #9ca3af;
+        --tf-priority-medium: #cbd5e1;
+        --tf-priority-high: #fbbf24;
+        --tf-priority-urgent: #f87171;
+
+        /* Depth */
+        --tf-shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.35);
+        --tf-shadow-md: 0 6px 18px rgba(0, 0, 0, 0.45);
+
+        --bs-link-hover-color-rgb: 147, 197, 253;
+    }
+
+    /* Sidebar and canvas share a colour: separate them with a border */
+    :root[data-theme="dark"] .app-sidebar {
+        border-right: 1px solid var(--tf-nav-border);
+    }
+
+    /* Filled controls use a deeper blue so white text stays readable */
+    :root[data-theme="dark"] .btn-primary {
+        --bs-btn-bg: var(--tf-button);
+        --bs-btn-border-color: var(--tf-button);
+        --bs-btn-hover-bg: var(--tf-button-hover);
+        --bs-btn-hover-border-color: var(--tf-button-hover);
+        --bs-btn-active-bg: var(--tf-button-hover);
+        --bs-btn-active-border-color: var(--tf-button-hover);
+        --bs-btn-disabled-bg: var(--tf-button);
+        --bs-btn-disabled-border-color: var(--tf-button);
+    }
+
+    :root[data-theme="dark"] .btn-check:checked + .btn-outline-secondary,
+    :root[data-theme="dark"] .form-check-input:checked {
+        background-color: var(--tf-button);
+        border-color: var(--tf-button);
+    }
+
+    :root[data-theme="dark"] .pagination {
+        --bs-pagination-active-bg: var(--tf-button);
+        --bs-pagination-active-border-color: var(--tf-button);
+    }
+
+    :root[data-theme="dark"] .dropdown-menu {
+        --bs-dropdown-link-active-bg: var(--tf-button);
+    }
+
+    /* Outline buttons: dark text on the light hover fill */
+    :root[data-theme="dark"] .btn-outline-danger,
+    :root[data-theme="dark"] .btn-outline-success {
+        --bs-btn-hover-color: var(--tf-canvas);
+        --bs-btn-active-color: var(--tf-canvas);
+    }
+
+    /* Count badges: white text needs a deeper red */
+    :root[data-theme="dark"] .sidebar-badge,
+    :root[data-theme="dark"] .topbar-badge {
+        background: #dc2626;
+    }
+
+    :root[data-theme="dark"] .topbar-badge {
+        border-color: var(--tf-surface);
+    }
+
+    /* Neutral badges */
+    :root[data-theme="dark"] .badge.text-bg-dark {
+        background: var(--tf-surface-sunken) !important;
+        color: var(--tf-text) !important;
+    }
+
+    /* Bootstrap light-only utilities used in a few pages */
+    :root[data-theme="dark"] .bg-white,
+    :root[data-theme="dark"] .bg-light {
+        background-color: var(--tf-surface) !important;
+    }
+
+    :root[data-theme="dark"] .input-group-text.bg-white {
+        background-color: var(--tf-surface-muted) !important;
+    }
+
+    :root[data-theme="dark"] .table-light {
+        --bs-table-bg: var(--tf-surface-muted);
+        --bs-table-color: var(--tf-text);
+        --bs-table-border-color: var(--tf-border);
+        --bs-table-striped-bg: var(--tf-surface-muted);
+        --bs-table-hover-bg: var(--tf-surface-hover);
+        --bs-table-hover-color: var(--tf-text);
+    }
+
+    /* Wide-table scroll shadows: fade to the dark surface */
+    :root[data-theme="dark"] .table-responsive {
+        background:
+            linear-gradient(to right, var(--tf-surface) 30%, rgba(31, 41, 55, 0)) left center / 40px 100% no-repeat local,
+            linear-gradient(to left, var(--tf-surface) 30%, rgba(31, 41, 55, 0)) right center / 40px 100% no-repeat local,
+            radial-gradient(farthest-side at 0 50%, rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0)) left center / 12px 100% no-repeat scroll,
+            radial-gradient(farthest-side at 100% 50%, rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0)) right center / 12px 100% no-repeat scroll;
+        background-color: var(--tf-surface);
+    }
+
+    /* Form fields sit slightly below the card surface */
+    :root[data-theme="dark"] .form-control,
+    :root[data-theme="dark"] .form-select {
+        background-color: var(--tf-canvas);
+    }
+
+    :root[data-theme="dark"] .form-control:disabled,
+    :root[data-theme="dark"] .form-control[readonly],
+    :root[data-theme="dark"] .form-select:disabled {
+        background-color: var(--tf-surface-muted);
+    }
+
+    :root[data-theme="dark"] .topbar-search .input-group-text,
+    :root[data-theme="dark"] .topbar-search .form-control {
+        background: var(--tf-canvas);
+    }
+}

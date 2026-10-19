@@ -1,0 +1,2 @@
+# Command-line scripts only. Never served by the web server.
+Require all denied

@@ -1,0 +1,2 @@
+# Include files contain PHP logic only and must not be opened directly in the browser.
+Require all denied

@@ -1,0 +1,5 @@
+# Uploaded profile photos: serve images only, never run scripts or list files.
+<FilesMatch "\.(?i:php\d?|phtml|phar|pht|pl|py|cgi|sh|asp|aspx|jsp|shtml|htaccess|html?|svg)$">
+    Require all denied
+</FilesMatch>
+Options -Indexes

@@ -1,0 +1,2 @@
+# Configuration files must never be served directly by Apache.
+Require all denied
