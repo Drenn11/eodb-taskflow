@@ -55,23 +55,17 @@ function db(): PDO
     } catch (PDOException $e) {
         error_log('[EODB-TaskFlow] Database connection failed: ' . $e->getMessage());
 
-        if (PHP_SAPI === 'cli') {
-            fwrite(STDERR, "Database connection failed. Check that MySQL is running and that the\n"
-                . "'" . DB_NAME . "' database was imported. Details were written to the PHP error log.\n");
-            exit(1);
-        }
-
-        http_response_code(500);
-        header('Content-Type: text/html; charset=utf-8');
-        echo '<!doctype html><html lang="en"><head><meta charset="utf-8"><title>Service Unavailable</title>'
-            . '<style>body{font-family:Arial,sans-serif;background:#f5f5f5;color:#333;display:flex;'
-            . 'align-items:center;justify-content:center;height:100vh;margin:0}'
-            . '.box{background:#fff;border:1px solid #ddd;padding:32px;max-width:480px;text-align:center}</style>'
-            . '</head><body><div class="box"><h2>System temporarily unavailable</h2>'
-            . '<p>The system could not connect to the database. Please contact the system administrator.</p>'
-            . '</div></body></html>';
-        exit;
-    }
+        } catch (PDOException $e) {
+    error_log('[EODB-TaskFlow] Database connection failed: ' . $e->getMessage());
+    
+    // I-print ang totoong error sa screen para makita natin
+    http_response_code(500);
+    echo "<div style='padding: 20px; color: red; font-family: sans-serif;'>";
+    echo "<h3>Database Connection Error:</h3>";
+    echo "<pre>" . htmlspecialchars($e->getMessage()) . "</pre>";
+    echo "</div>";
+    exit;
+}
 
     return $pdo;
 }
