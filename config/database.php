@@ -15,11 +15,12 @@
 declare(strict_types=1);
 
 // Default XAMPP credentials. Change these if your MySQL root account has a password.
-define('DB_HOST', 'db.wayruqnckafsnewqjryx.supabase.co');
-define('DB_PORT', '5432');
-define('DB_NAME', 'postgres');
-define('DB_USER', 'postgres');
-define('DB_PASS', 'TaskFlow2026');
+define('DB_HOST', 'localhost');
+define('DB_PORT', 3307);
+define('DB_NAME', 'eodb_taskflow');
+define('DB_USER', 'root');
+define('DB_PASS', '');
+define('DB_CHARSET', 'utf8mb4');
 
 /**
  * Returns the shared PDO connection, creating it on first use.
@@ -35,10 +36,11 @@ function db(): PDO
     }
 
     $dsn = sprintf(
-        'pgsql:host=%s;port=%d;dbname=%s',
+        'mysql:host=%s;port=%d;dbname=%s;charset=%s',
         DB_HOST,
         DB_PORT,
         DB_NAME,
+        DB_CHARSET,
     );
 
     $options = [
@@ -52,17 +54,26 @@ function db(): PDO
         $pdo = new PDO($dsn, DB_USER, DB_PASS, $options);
         // Keep CURDATE()/NOW() in Philippine time so overdue detection matches PHP.
         $pdo->exec("SET time_zone = '+08:00'");
-        
     } catch (PDOException $e) {
-    error_log('[EODB-TaskFlow] Database connection failed: ' . $e->getMessage());
-    
-    http_response_code(500);
-    echo "<div style='padding: 20px; color: red; font-family: sans-serif;'>";
-    echo "<h3>Database Connection Error:</h3>";
-    echo "<pre>" . htmlspecialchars($e->getMessage()) . "</pre>";
-    echo "</div>";
-    exit;
-}
+        error_log('[EODB-TaskFlow] Database connection failed: ' . $e->getMessage());
+
+        if (PHP_SAPI === 'cli') {
+            fwrite(STDERR, "Database connection failed. Check that MySQL is running and that the\n"
+                . "'" . DB_NAME . "' database was imported. Details were written to the PHP error log.\n");
+            exit(1);
+        }
+
+        http_response_code(500);
+        header('Content-Type: text/html; charset=utf-8');
+        echo '<!doctype html><html lang="en"><head><meta charset="utf-8"><title>Service Unavailable</title>'
+            . '<style>body{font-family:Arial,sans-serif;background:#f5f5f5;color:#333;display:flex;'
+            . 'align-items:center;justify-content:center;height:100vh;margin:0}'
+            . '.box{background:#fff;border:1px solid #ddd;padding:32px;max-width:480px;text-align:center}</style>'
+            . '</head><body><div class="box"><h2>System temporarily unavailable</h2>'
+            . '<p>The system could not connect to the database. Please contact the system administrator.</p>'
+            . '</div></body></html>';
+        exit;
+    }
 
     return $pdo;
 }
