@@ -52,13 +52,10 @@ function db(): PDO
         $pdo = new PDO($dsn, DB_USER, DB_PASS, $options);
         // Keep CURDATE()/NOW() in Philippine time so overdue detection matches PHP.
         $pdo->exec("SET time_zone = '+08:00'");
+        
     } catch (PDOException $e) {
-        error_log('[EODB-TaskFlow] Database connection failed: ' . $e->getMessage());
-
-        } catch (PDOException $e) {
     error_log('[EODB-TaskFlow] Database connection failed: ' . $e->getMessage());
     
-    // I-print ang totoong error sa screen para makita natin
     http_response_code(500);
     echo "<div style='padding: 20px; color: red; font-family: sans-serif;'>";
     echo "<h3>Database Connection Error:</h3>";
