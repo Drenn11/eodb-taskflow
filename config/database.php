@@ -15,12 +15,11 @@
 declare(strict_types=1);
 
 // Default XAMPP credentials. Change these if your MySQL root account has a password.
-define('DB_HOST', 'localhost');
-define('DB_PORT', 3307);
-define('DB_NAME', 'eodb_taskflow');
-define('DB_USER', 'root');
-define('DB_PASS', '');
-define('DB_CHARSET', 'utf8mb4');
+define('DB_HOST', 'db.wayruqnckafsnewqjryx.supabase.co');
+define('DB_PORT', '5432');
+define('DB_NAME', 'postgres');
+define('DB_USER', 'postgres');
+define('DB_PASS', 'TaskFlow2026');
 
 /**
  * Returns the shared PDO connection, creating it on first use.
@@ -36,11 +35,10 @@ function db(): PDO
     }
 
     $dsn = sprintf(
-        'mysql:host=%s;port=%d;dbname=%s;charset=%s',
+        'pgsql:host=%s;port=%d;dbname=%s',
         DB_HOST,
         DB_PORT,
         DB_NAME,
-        DB_CHARSET
     );
 
     $options = [
